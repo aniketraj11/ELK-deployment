@@ -1,0 +1,30 @@
+---
+
+- name: check status  Elasticsearch
+  command: systemctl is-active elasticsearch.service
+  register: st
+  failed_when: st.rc != 1 and st.rc != 0 and st.rc != 3
+
+- name: Checkpoint  1
+  command: wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.7.1.rpm
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  2
+  command: wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.7.1.rpm.sha512
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  3
+  command: sudo yum install perl-Digest-SHA -y
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  4
+  command: shasum -a 512 -c elasticsearch-6.7.1.rpm.sha512
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  5
+  command: sudo rpm --install elasticsearch-6.7.1.rpm
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  6
+  command: sudo systemctl start elasticsearch.service
+  when: st.stdout == 'unknown'

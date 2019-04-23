@@ -1,0 +1,3 @@
+---
+  remote_user: root
+  ansible_ssh_pass: vmware@123

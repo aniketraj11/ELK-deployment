@@ -1,0 +1,22 @@
+---
+
+- name: check status of Kibana
+  command: systemctl is-active kibana.service
+  register: st
+  failed_when: st.rc != 1 and st.rc != 0 and st.rc != 3
+
+- name: Checkpoint  1
+  command: wget https://artifacts.elastic.co/downloads/kibana/kibana-6.7.1-x86_64.rpm
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  2
+  command: shasum -a 512 kibana-6.7.1-x86_64.rpm
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  3
+  command: sudo rpm --install kibana-6.7.1-x86_64.rpm
+  when: st.stdout == 'unknown'
+
+- name: Checkpoint  4
+  command: sudo systemctl start kibana.service
+  when: st.stdout == 'unknown'
