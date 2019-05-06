@@ -1,0 +1,42 @@
+---
+
+- name: Download rpm package for 5.6.16
+  shell: wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.tar.gz
+  args:
+    chdir: /elastic/software
+
+- name: Extract the package
+  shell:  tar -xvf elasticsearch-5.6.16.tar.gz
+  args:
+    chdir: /elastic/software
+
+- name: rename the config file in new
+  shell: mv elasticsearch.yml elasticsearch.ymlOld
+  args:
+    chdir: /elastic/software/elasticsearch-5.6.16/config
+
+- name: copy the config from old to new
+  copy:
+    src: /elastic/software/elasticsearch-5.5.1/config/elasticsearch.yml
+    dest: /elastic/software/elasticsearch-5.6.16/config/
+    remote_src: yes
+
+- name: change the jvm value 1
+  lineinfile:
+   destfile: /elastic/software/elasticsearch-5.6.16/config/jvm.options
+   regexp: '-Xms2g'
+   line: '-Xms3g'
+
+- name: change the jvm value 2
+  lineinfile:
+   destfile: /elastic/software/elasticsearch-5.6.16/config/jvm.options
+   regexp: '-Xmx2g'
+   line: '-Xmx3g'
+
+- name: stop elasticsearch
+  shell: kill -9  $(netstat -nlpt | grep 9200 | cut -d ' ' -f 58 | cut -d '/' -f 1)
+
+- name: start elasticsearch
+  shell: nohup ./elasticsearch &
+  args:
+    chdir: /elastic/software/elasticsearch-5.6.16/bin
